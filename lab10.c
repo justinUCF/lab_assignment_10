@@ -5,13 +5,16 @@
 // Trie structure
 struct Trie
 {
-    struct Trie letters[26];
+    struct Trie* next[26];    
     int flag;
 };
 
 // Inserts the word to the trie structure
 void insert(struct Trie *pTrie, char *word)
 {
+    if(pTrie == NULL) return;
+    int len = strlen(word);
+    
 }
 
 // computes the number of occurances of the word
@@ -27,6 +30,16 @@ struct Trie *deallocateTrie(struct Trie *pTrie)
 // Initializes a trie structure
 struct Trie *createTrie()
 {
+    struct Trie* newTrie = (struct Trie*)malloc(sizeof(struct Trie));
+    if(newTrie == NULL){
+        printf("createTrie() failed");
+        return NULL;
+    }
+    newTrie->flag = 0;
+    for(int i = 0; i < 26; ++i){
+        newTrie->next[i] = NULL;
+    }
+    return newTrie;
 }
 
 // this function will return number of words in the dictionary,
