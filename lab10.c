@@ -6,25 +6,63 @@
 struct Trie
 {
     struct Trie* next[26];    
-    int flag;
+    int num;
 };
+
+void insert(struct Trie* pTrie, char* word);
+struct Trie* deallocateTrie(struct Trie* pTrie);
+int numberOfOccurrences(struct Trie* pTrie, char* word);
+struct Trie* createTrie();
+int readDictionary(char* filename, char** pInWords);
+
 
 // Inserts the word to the trie structure
 void insert(struct Trie *pTrie, char *word)
 {
     if(pTrie == NULL) return;
     int len = strlen(word);
-    
+    struct Trie* curr = pTrie;
+    for(int i = 0; i < len; ++i) {
+        int index = word[i] - 'a';
+        if(curr->next[index] == NULL) {
+            curr->next[index] = createTrie();
+        }
+        curr = curr->next[index];
+    }
+    curr->num++;
 }
 
-// computes the number of occurances of the word
+// Computes the number of occurrences of the word
 int numberOfOccurances(struct Trie *pTrie, char *word)
 {
+    if(pTrie == NULL) return 0;
+    int len = strlen(word);
+    struct Trie *curr = pTrie;
+    for(int i = 0; i < len; ++i) {
+        int index = word[i] - 'a';
+        if(curr->next[index] == NULL) {
+            return 0;
+        }
+        curr = curr->next[index];
+    }
+    return curr->num;
 }
 
 // deallocate the trie structure
 struct Trie *deallocateTrie(struct Trie *pTrie)
 {
+    if (pTrie == NULL)
+        return NULL;
+    for (int i = 0; i < 26; ++i)
+    {
+        if (pTrie->next[i] != NULL)
+        {
+            deallocateTrie(pTrie->next[i]);
+            pTrie->next[i] = NULL;
+        }
+    }
+    free(pTrie);
+    return NULL;
 }
 
 // Initializes a trie structure
@@ -35,7 +73,7 @@ struct Trie *createTrie()
         printf("createTrie() failed");
         return NULL;
     }
-    newTrie->flag = 0;
+    newTrie->num = 0;
     for(int i = 0; i < 26; ++i){
         newTrie->next[i] = NULL;
     }
@@ -46,6 +84,20 @@ struct Trie *createTrie()
 // and read all the words in the dictionary to the structure words
 int readDictionary(char *filename, char **pInWords)
 {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Failed to open the file.\n");
+        return -1;
+    }
+    int count = 0;
+    char word[100];
+    while (fscanf(file, "%s", word) != EOF) {
+        pInWords[count] = (char*)malloc(strlen(word) + 1);
+        strcpy(pInWords[count], word);
+        count++;
+    }
+    fclose(file);
+    return count;
 }
 
 int main(void)
